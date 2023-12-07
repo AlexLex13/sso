@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/AlexLex13/sso/internal/domain/models"
 	"github.com/AlexLex13/sso/internal/storage"
 	"github.com/mattn/go-sqlite3"
 )
@@ -51,4 +52,28 @@ func (s *Storage) SaveUser(ctx context.Context, email string, passHash []byte) (
 	}
 
 	return id, nil
+}
+
+// User returns user by email.
+func (s *Storage) User(ctx context.Context, email string) (models.User, error) {
+	const op = "storage.sqlite.User"
+
+	stmt, err := s.db.Prepare("SELECT id, email, pass_hash FROM users WHERE email = ?")
+	if err != nil {
+		return models.User{}, fmt.Errorf("%s: %w", op, err)
+	}
+
+	row := stmt.QueryRowContext(ctx, email)
+
+	var user models.User
+	err = row.Scan(&user.ID, &user.Email, &user.PassHash)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return models.User{}, fmt.Errorf("%s: %w", op, storage.ErrUserNotFound)
+		}
+
+		return models.User{}, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return user, nil
 }
