@@ -4,6 +4,7 @@ go 1.21.4
 
 require (
 	github.com/AlexLex13/protos v0.0.0-20231206182253-22e51c3e0564
+	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	golang.org/x/crypto v0.13.0
 	google.golang.org/grpc v1.59.0
