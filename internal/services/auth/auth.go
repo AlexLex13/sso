@@ -10,6 +10,7 @@ import (
 	"github.com/AlexLex13/sso/internal/domain/models"
 	"github.com/AlexLex13/sso/internal/lib/jwt"
 	"github.com/AlexLex13/sso/internal/lib/logger/sl"
+	"github.com/AlexLex13/sso/internal/storage"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -129,7 +130,7 @@ func (a *Auth) Login(
 	}
 
 	log.Info("user logged in successfully")
-	
+
 	token, err := jwt.NewToken(user, app, a.tokenTTL)
 	if err != nil {
 		a.log.Error("failed to generate token", sl.Err(err))
