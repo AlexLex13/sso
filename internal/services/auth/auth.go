@@ -2,10 +2,13 @@ package auth
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"time"
 
 	"github.com/AlexLex13/sso/internal/domain/models"
+	"github.com/AlexLex13/sso/internal/lib/logger/sl"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserSaver interface {
@@ -46,4 +49,33 @@ func New(
 		appProvider: appProvider,
 		tokenTTL:    tokenTTL,
 	}
+}
+
+// RegisterNewUser registers new user in the system and returns user ID.
+// If user with given username already exists, returns error.
+func (a *Auth) RegisterNewUser(ctx context.Context, email string, pass string) (int64, error) {
+	const op = "Auth.RegisterNewUser"
+
+	log := a.log.With(
+		slog.String("op", op),
+		slog.String("email", email),
+	)
+
+	log.Info("registering user")
+
+	passHash, err := bcrypt.GenerateFromPassword([]byte(pass), bcrypt.DefaultCost)
+	if err != nil {
+		log.Error("failed to generate password hash", sl.Err(err))
+
+		return 0, fmt.Errorf("%s: %w", op, err)
+	}
+	
+	id, err := a.usrSaver.SaveUser(ctx, email, passHash)
+	if err != nil {
+		log.Error("failed to save user", sl.Err(err))
+
+		return 0, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return id, nil
 }
