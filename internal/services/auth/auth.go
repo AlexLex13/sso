@@ -2,6 +2,8 @@ package auth
 
 import (
 	"context"
+	"log/slog"
+	"time"
 
 	"github.com/AlexLex13/sso/internal/domain/models"
 )
@@ -20,4 +22,28 @@ type UserProvider interface {
 
 type AppProvider interface {
 	App(ctx context.Context, appID int) (models.App, error)
+}
+
+type Auth struct {
+	log         *slog.Logger
+	usrSaver    UserSaver
+	usrProvider UserProvider
+	appProvider AppProvider
+	tokenTTL    time.Duration
+}
+
+func New(
+	log *slog.Logger,
+	userSaver UserSaver,
+	userProvider UserProvider,
+	appProvider AppProvider,
+	tokenTTL time.Duration,
+) *Auth {
+	return &Auth{
+		usrSaver:    userSaver,
+		usrProvider: userProvider,
+		log:         log,
+		appProvider: appProvider,
+		tokenTTL:    tokenTTL,
+	}
 }
