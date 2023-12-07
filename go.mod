@@ -3,6 +3,7 @@ module github.com/AlexLex13/sso
 go 1.21.4
 
 require (
+	github.com/AlexLex13/protos v0.0.0-20231206182253-22e51c3e0564 // indirect
 	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/ilyakaznacheev/cleanenv v1.5.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
