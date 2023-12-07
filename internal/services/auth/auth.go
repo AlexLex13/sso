@@ -2,11 +2,13 @@ package auth
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"time"
 
 	"github.com/AlexLex13/sso/internal/domain/models"
+	"github.com/AlexLex13/sso/internal/lib/jwt"
 	"github.com/AlexLex13/sso/internal/lib/logger/sl"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -69,7 +71,7 @@ func (a *Auth) RegisterNewUser(ctx context.Context, email string, pass string) (
 
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
-	
+
 	id, err := a.usrSaver.SaveUser(ctx, email, passHash)
 	if err != nil {
 		log.Error("failed to save user", sl.Err(err))
@@ -78,4 +80,62 @@ func (a *Auth) RegisterNewUser(ctx context.Context, email string, pass string) (
 	}
 
 	return id, nil
+}
+
+var (
+	ErrInvalidCredentials = errors.New("invalid credentials")
+)
+
+// Login checks if user with given credentials exists in the system and returns access token.
+// If user exists, but password is incorrect, returns error.
+// If user doesn't exist, returns error.
+func (a *Auth) Login(
+	ctx context.Context,
+	email string,
+	password string,
+	appID int,
+) (string, error) {
+	const op = "Auth.Login"
+
+	log := a.log.With(
+		slog.String("op", op),
+		slog.String("username", email),
+	)
+
+	log.Info("attempting to login user")
+
+	user, err := a.usrProvider.User(ctx, email)
+	if err != nil {
+		if errors.Is(err, storage.ErrUserNotFound) {
+			a.log.Warn("user not found", sl.Err(err))
+
+			return "", fmt.Errorf("%s: %w", op, ErrInvalidCredentials)
+		}
+
+		a.log.Error("failed to get user", sl.Err(err))
+
+		return "", fmt.Errorf("%s: %w", op, err)
+	}
+
+	if err := bcrypt.CompareHashAndPassword(user.PassHash, []byte(password)); err != nil {
+		a.log.Info("invalid credentials", sl.Err(err))
+
+		return "", fmt.Errorf("%s: %w", op, ErrInvalidCredentials)
+	}
+
+	app, err := a.appProvider.App(ctx, appID)
+	if err != nil {
+		return "", fmt.Errorf("%s: %w", op, err)
+	}
+
+	log.Info("user logged in successfully")
+	
+	token, err := jwt.NewToken(user, app, a.tokenTTL)
+	if err != nil {
+		a.log.Error("failed to generate token", sl.Err(err))
+
+		return "", fmt.Errorf("%s: %w", op, err)
+	}
+
+	return token, nil
 }
