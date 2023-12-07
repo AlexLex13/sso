@@ -5,6 +5,7 @@ go 1.21.4
 require (
 	github.com/AlexLex13/protos v0.0.0-20231206182253-22e51c3e0564
 	github.com/golang-jwt/jwt/v5 v5.0.0
+	github.com/golang-migrate/migrate/v4 v4.16.2
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	golang.org/x/crypto v0.13.0
 	google.golang.org/grpc v1.59.0
@@ -13,7 +14,11 @@ require (
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
+	github.com/hashicorp/errwrap v1.1.0 // indirect
+	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
+	github.com/mattn/go-sqlite3 v1.14.16 // indirect
+	go.uber.org/atomic v1.7.0 // indirect
 	golang.org/x/net v0.14.0 // indirect
 	golang.org/x/sys v0.12.0 // indirect
 	golang.org/x/text v0.13.0 // indirect
