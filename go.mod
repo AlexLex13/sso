@@ -6,6 +6,7 @@ require (
 	github.com/AlexLex13/protos v0.0.0-20231206182253-22e51c3e0564
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/golang-migrate/migrate/v4 v4.16.2
+	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.0.0
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/mattn/go-sqlite3 v1.14.16
 	golang.org/x/crypto v0.13.0
